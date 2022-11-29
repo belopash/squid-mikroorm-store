@@ -1,0 +1,32 @@
+{
+  "name": "balances",
+  "private": true,
+  "engines": {
+    "node": ">=16"
+  },
+  "scripts": {
+    "build": "rm -rf lib && tsc",
+    "db:migrate": "npx squid--migration apply",
+    "processor:start": "node lib/processor.js",
+    "query-node:start": "squid-graphql-server --subscriptions --max-response-size 10000 --dumb-cache in-memory --dumb-cache-ttl 1000 --dumb-cache-size 100 --dumb-cache-max-age 1000"
+  },
+  "dependencies": {
+    "@mikro-orm/core": "^5.5.2",
+    "@mikro-orm/postgresql": "^5.5.0",
+    "@subsquid/archive-registry": "1.0.15",
+    "@subsquid/graphql-server": "3.2.2",
+    "@subsquid/ss58": "0.1.2",
+    "@subsquid/substrate-processor": "2.0.0",
+    "@subsquid/mikroorm-migration": "0.0.0",
+    "@subsquid/mikroorm-store": "0.0.0",
+    "dotenv": "^10.0.0",
+    "pg": "8.8.0"
+  },
+  "devDependencies": {
+    "@subsquid/substrate-metadata-explorer": "1.0.8",
+    "@subsquid/substrate-typegen": "1.4.2",
+    "@subsquid/mikroorm-codegen": "0.0.0",
+    "@types/node": "16.11.56",
+    "typescript": "4.8.2"
+  }
+}

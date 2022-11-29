@@ -1,0 +1,16 @@
+type Scalar @entity {
+  "Account address"
+  id: ID!
+  boolean: Boolean
+  bigint: BigInt
+  bigdecimal: BigDecimal
+  string: String
+  dateTime: DateTime
+  bytes: Bytes
+  json: JSON
+}
+
+type Item  @entity {
+  id: ID!
+  name: String!
+}
