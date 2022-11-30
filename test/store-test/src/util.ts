@@ -1,4 +1,4 @@
-import {EntityManager, MikroORM} from '@mikro-orm/core'
+import {EntityManager, FlushMode, MikroORM} from '@mikro-orm/core'
 import {createOrmConfig} from '@subsquid/mikroorm-config'
 import {Store} from '@subsquid/mikroorm-store'
 import {assertNotNull} from '@subsquid/util-internal'
@@ -49,7 +49,7 @@ let connection: Promise<MikroORM> | undefined
 export function getEntityManager(): Promise<EntityManager> {
     if (connection == null) {
         let cfg = createOrmConfig()
-        connection = MikroORM.init(cfg)
+        connection = MikroORM.init({...cfg, debug: ['query'], flushMode: FlushMode.AUTO})
     }
     return connection.then((con) => con.em.fork())
 }

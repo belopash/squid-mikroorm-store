@@ -15,14 +15,15 @@ describe('Store', function () {
         it('load of a single entity', async function () {
             let store = await createStore()
             await store.defer(Item, '1').load(Item)
-            expect(await store.get(Item, '1')).toMatchObject({id: '1', name: 'a'})
+
+            expect(store.get(Item, '1')).toMatchObject({id: '1', name: 'a'})
         })
 
         it('load of multiple entities', async function () {
             let store = await createStore()
             await store.defer(Item, '1').defer(Item, '2').load(Item)
 
-            expect([await store.get(Item, '1'), await store.get(Item, '2')]).toMatchObject([
+            expect([store.get(Item, '1'), store.get(Item, '2')]).toMatchObject([
                 {id: '1', name: 'a'},
                 {id: '2', name: 'b'},
             ])
@@ -42,7 +43,8 @@ describe('Store', function () {
             store.persist(new Item({id: '4', name: 'd'}))
             await store.flush()
             store.clear()
-            expect(await store.findOne(Item, {id: '4'})).toMatchObject({id: '4', name: 'd'})
+
+            await expect(store.findOne(Item, '4')).resolves.toMatchObject({id: '4', name: 'd'})
         })
 
         it('persist of multiple entities', async function () {
@@ -50,16 +52,18 @@ describe('Store', function () {
             store.persist([new Item({id: '4', name: 'd'}), new Item({id: '5', name: 'e'})])
             await store.flush()
             store.clear()
-            expect(await store.find(Item, {id: {$in: ['4', '5']}})).toMatchObject([
+
+            await expect(store.find(Item, ['4', '5'])).resolves.toMatchObject([
                 {id: '4', name: 'd'},
                 {id: '5', name: 'e'},
             ])
         })
 
-        it('get after persisting', async function () {
+        it('get after persist without flush', async function () {
             let store = await createStore()
             store.persist(new Item({id: '4', name: 'd'}))
-            expect(await store.get(Item, '4')).toMatchObject({id: '4', name: 'd'})
+
+            expect(store.get(Item, '4')).toMatchObject({id: '4', name: 'd'})
         })
     })
 
@@ -73,11 +77,12 @@ describe('Store', function () {
 
         it('update of a single entity', async function () {
             let store = await createStore()
-            let item = await store.findOne(Item, {id: '1'}).then(assertNotNull)
+            let item = await store.findOneOrFail(Item, {id: '1'})
             item.name = 'b'
             await store.flush()
             store.clear()
-            expect(await store.find(Item, {id: {$in: ['1', '2']}})).toMatchObject([
+
+            await expect(store.find(Item, {id: {$in: ['1', '2']}})).resolves.toMatchObject([
                 {id: '1', name: 'b'},
                 {id: '2', name: 'b'},
             ])
@@ -85,13 +90,13 @@ describe('Store', function () {
 
         it('update of multiple entities', async function () {
             let store = await createStore()
-            let item1 = await store.findOne(Item, {id: '1'}).then(assertNotNull)
-            item1.name = 'b'
-            let item2 = await store.findOne(Item, {id: '2'}).then(assertNotNull)
-            item2.name = 'a'
+            let items = await store.find(Item, ['1', '2'])
+            items[0].name = 'b'
+            items[1].name = 'a'
             await store.flush()
             store.clear()
-            expect(await store.find(Item, {id: {$in: ['1', '2']}})).toMatchObject([
+
+            await expect(store.find(Item, {id: {$in: ['1', '2']}})).resolves.toMatchObject([
                 {id: '1', name: 'b'},
                 {id: '2', name: 'a'},
             ])
@@ -108,10 +113,12 @@ describe('Store', function () {
 
         it('removal by passing an entity', async function () {
             let store = await createStore()
-            let item = await store.findOne(Item, {id: '1'}).then(assertNotNull)
+            let item = await store.findOneOrFail(Item, '1')
             store.remove(item)
             await store.flush()
-            expect(await store.find(Item, {})).toMatchObject([
+            store.clear()
+
+            await expect(store.find(Item, {})).resolves.toMatchObject([
                 {id: '2', name: 'b'},
                 {id: '3', name: 'c'},
             ])
@@ -122,16 +129,9 @@ describe('Store', function () {
             let items = await store.find(Item, {id: {$in: ['1', '2']}})
             store.remove(...items)
             await store.flush()
-            expect(await store.find(Item, {})).toMatchObject([
-                {id: '3', name: 'c'},
-            ])
-        })
+            store.clear()
 
-        it('get after removing', async function () {
-            let store = await createStore()
-            let item = await store.findOne(Item, {id: '1'}).then(assertNotNull)
-            store.remove(item)
-            expect(await store.get(Item, '1')).toBeUndefined()
+            await expect(store.find(Item, {})).resolves.toMatchObject([{id: '3', name: 'c'}])
         })
     })
 })

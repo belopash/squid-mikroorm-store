@@ -1,6 +1,7 @@
 import assert from 'assert'
-import {EntityManager, EntityClass} from '@mikro-orm/core'
+import {EntityManager, EntityClass, Entity} from '@mikro-orm/core'
 import {FilterQuery} from '@mikro-orm/core/typings'
+import {assertNotNull} from '@subsquid/util-internal'
 // import {ColumnMetadata} from '/metadata/ColumnMetadata'
 
 // export interface EntityClass<T> {
@@ -120,8 +121,24 @@ export class Store {
         return this.em().findOneOrFail(entityClass, where)
     }
 
-    get<E extends Entity>(entityClass: EntityClass<E>, id: string): Promise<E | undefined> {
-        return this.findOne<E>(entityClass, {id} as any)
+    get<E extends Entity>(entityClass: EntityClass<E>, id: string): E | undefined {
+        let uow = this.em().getUnitOfWork()
+        let item = uow.getById<E>(entityClass.name, id as any)
+
+        if (item == null) {
+            let persistMap = new Map<string, E>([...uow.getPersistStack()].map(e => [e.id, e as E]))
+            return persistMap.get(id)
+        } else {
+            if (uow.getRemoveStack().has(item)) {
+                return undefined
+            } else {
+                return item
+            }
+        }
+    }
+
+    getOrFail<E extends Entity>(entityClass: EntityClass<E>, id: string): E {
+        return assertNotNull(this.get<E>(entityClass, id))
     }
 
     async getOrPersist<E extends Entity>(
@@ -129,7 +146,7 @@ export class Store {
         id: string,
         create: (id: string) => E
     ): Promise<E | undefined> {
-        let e = await this.get<E>(entityClass, id)
+        let e = this.get<E>(entityClass, id)
         if (!e) {
             e = create(id)
             this.persist(e)

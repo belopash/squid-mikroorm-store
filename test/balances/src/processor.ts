@@ -34,17 +34,15 @@ processor.run(new MikroormDatabase(), async (ctx) => {
     for (let t of transfersData) {
         ctx.store.defer(Account, t.from, t.to)
     }
-
-    const accounts = await ctx.store.loadOrPersist(Account, createAccount).then((q) => new Map(q.map((i) => [i.id, i])))
-
+    
+    await ctx.store.loadOrPersist(Account, createAccount)
     for (let t of transfersData) {
-        const transfer = new Transfer(t)
-        ctx.store.persist(transfer)
-
-        const from = assertNotNull(accounts.get(transfer.from))
+        ctx.store.persist(new Transfer(t))
+        
+        const from = ctx.store.getOrFail(Account, t.from)
         from.transfersCount++
 
-        const to = assertNotNull(accounts.get(transfer.to))
+        const to = ctx.store.getOrFail(Account, t.to)
         to.transfersCount++
     }
 })
