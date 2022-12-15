@@ -471,12 +471,12 @@
     },
     {
       "packageName": "balances",
-      "projectFolder": "tests/balances",
+      "projectFolder": "test/balances",
       "shouldPublish": false
     },
     {
       "packageName": "store-test",
-      "projectFolder": "tests/store-test",
+      "projectFolder": "test/store-test",
       "shouldPublish": false
     }
   ]
