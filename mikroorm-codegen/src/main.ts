@@ -29,4 +29,10 @@ and db migrations (if any) at db/migrations.
         index.line(`export * from "./generated"`)
         index.write()
     }
+
+    if (!fs.existsSync(orm.path('models.ts'))) {
+        let index = orm.file('models.ts')
+        index.line(`export * from "./generated"`)
+        index.write()
+    }
 })
