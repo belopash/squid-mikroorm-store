@@ -1,8 +1,8 @@
 lockfileVersion: 5.3
 
 specifiers:
-  '@mikro-orm/core': ^5.5.2
-  '@mikro-orm/migrations': ~5.5.2
+  '@mikro-orm/core': ^5.6.0
+  '@mikro-orm/migrations': ~5.6.0
   '@mikro-orm/postgresql': ^5.5.0
   '@rush-temp/balances': file:./projects/balances.tgz
   '@rush-temp/mikroorm-codegen': file:./projects/mikroorm-codegen.tgz
@@ -23,20 +23,21 @@ specifiers:
   '@types/mocha': ^9.1.1
   '@types/pg': ^8.6.5
   commander: ^9.3.0
+  deep-equal: ~2.1.0
   dotenv: ^10.0.0
   expect: ^27.5.1
   mocha: ^9.2.2
 
 dependencies:
-  '@mikro-orm/core': 5.5.3_fec5cd594e441bfa716ae14497f570e4
-  '@mikro-orm/migrations': 5.5.3_@mikro-orm+core@5.5.3
-  '@mikro-orm/postgresql': 5.5.3_d440012c1d2c63fceb888afe1b76e2e7
-  '@rush-temp/balances': file:projects/balances.tgz_795a39bad6061566f3b457dddeaf4fbf
-  '@rush-temp/mikroorm-codegen': file:projects/mikroorm-codegen.tgz_d9c363ef7a217791235c5cd0215d52cf
-  '@rush-temp/mikroorm-config': file:projects/mikroorm-config.tgz_fec5cd594e441bfa716ae14497f570e4
-  '@rush-temp/mikroorm-migration': file:projects/mikroorm-migration.tgz
-  '@rush-temp/mikroorm-store': file:projects/mikroorm-store.tgz_@mikro-orm+migrations@5.5.3
-  '@rush-temp/store-test': file:projects/store-test.tgz_fec5cd594e441bfa716ae14497f570e4
+  '@mikro-orm/core': 5.6.0_ee086e628506e458ffe91dd96c8394a9
+  '@mikro-orm/migrations': 5.6.0_@mikro-orm+core@5.6.0
+  '@mikro-orm/postgresql': 5.5.3_14b0d42d6699fd1e13481867a14ea264
+  '@rush-temp/balances': file:projects/balances.tgz_ad5c92d4b8222b029f64000c977c32cd
+  '@rush-temp/mikroorm-codegen': file:projects/mikroorm-codegen.tgz_4f97b771123e7b4d6ae50d34e6a1e2cb
+  '@rush-temp/mikroorm-config': file:projects/mikroorm-config.tgz_@mikro-orm+migrations@5.6.0
+  '@rush-temp/mikroorm-migration': file:projects/mikroorm-migration.tgz_@mikro-orm+postgresql@5.5.3
+  '@rush-temp/mikroorm-store': file:projects/mikroorm-store.tgz_ee086e628506e458ffe91dd96c8394a9
+  '@rush-temp/store-test': file:projects/store-test.tgz_ee086e628506e458ffe91dd96c8394a9
   '@subsquid/archive-registry': 1.0.15
   '@subsquid/big-decimal': 0.0.0
   '@subsquid/graphql-server': 3.2.2_@subsquid+big-decimal@0.0.0
@@ -50,6 +51,7 @@ dependencies:
   '@types/mocha': 9.1.1
   '@types/pg': 8.6.5
   commander: 9.4.1
+  deep-equal: 2.1.0
   dotenv: 10.0.0
   expect: 27.5.1
   mocha: 9.2.2
@@ -328,8 +330,8 @@ packages:
       - supports-color
     dev: false
 
-  /@mikro-orm/core/5.5.3_fec5cd594e441bfa716ae14497f570e4:
-    resolution: {integrity: sha512-/iQ6YKDp8EfTYibAOTkvW44uIc3qk0N+VSsUqMtO3sjb5Y2C6B+Wz4E1Qjb+oSeZtvWZn469HMCiOTgdMl6KSw==}
+  /@mikro-orm/core/5.6.0_a42176b4e234c9fcbcbbde3937f0afc4:
+    resolution: {integrity: sha512-R/9cOKb96JaE5xxTN18r8TV3rbz53PA3/XJN6xwo3WSbOKSvZpTyDSouskmlq9u2naFvPy1rBap5u+e7OjzcTg==}
     engines: {node: '>= 14.0.0'}
     peerDependencies:
       '@mikro-orm/better-sqlite': ^5.0.0
@@ -364,18 +366,65 @@ packages:
       '@mikro-orm/sqlite':
         optional: true
     dependencies:
-      '@mikro-orm/migrations': 5.5.3_@mikro-orm+core@5.5.3
-      '@mikro-orm/postgresql': 5.5.3_d440012c1d2c63fceb888afe1b76e2e7
+      '@mikro-orm/migrations': 5.6.0_@mikro-orm+core@5.6.0
+      '@mikro-orm/postgresql': 5.6.0_14b0d42d6699fd1e13481867a14ea264
       acorn-loose: 8.3.0
       acorn-walk: 8.2.0
       dotenv: 16.0.3
-      fs-extra: 10.1.0
-      globby: 11.0.4
-      mikro-orm: 5.5.3
+      fs-extra: 11.1.0
+      globby: 11.1.0
+      mikro-orm: 5.6.0
       reflect-metadata: 0.1.13
     dev: false
 
-  /@mikro-orm/knex/5.5.3_3e70fdd45035334240d9fce37e469027:
+  /@mikro-orm/core/5.6.0_ee086e628506e458ffe91dd96c8394a9:
+    resolution: {integrity: sha512-R/9cOKb96JaE5xxTN18r8TV3rbz53PA3/XJN6xwo3WSbOKSvZpTyDSouskmlq9u2naFvPy1rBap5u+e7OjzcTg==}
+    engines: {node: '>= 14.0.0'}
+    peerDependencies:
+      '@mikro-orm/better-sqlite': ^5.0.0
+      '@mikro-orm/entity-generator': ^5.0.0
+      '@mikro-orm/mariadb': ^5.0.0
+      '@mikro-orm/migrations': ^5.0.0
+      '@mikro-orm/migrations-mongodb': ^5.0.0
+      '@mikro-orm/mongodb': ^5.0.0
+      '@mikro-orm/mysql': ^5.0.0
+      '@mikro-orm/postgresql': ^5.0.0
+      '@mikro-orm/seeder': ^5.0.0
+      '@mikro-orm/sqlite': ^5.0.0
+    peerDependenciesMeta:
+      '@mikro-orm/better-sqlite':
+        optional: true
+      '@mikro-orm/entity-generator':
+        optional: true
+      '@mikro-orm/mariadb':
+        optional: true
+      '@mikro-orm/migrations':
+        optional: true
+      '@mikro-orm/migrations-mongodb':
+        optional: true
+      '@mikro-orm/mongodb':
+        optional: true
+      '@mikro-orm/mysql':
+        optional: true
+      '@mikro-orm/postgresql':
+        optional: true
+      '@mikro-orm/seeder':
+        optional: true
+      '@mikro-orm/sqlite':
+        optional: true
+    dependencies:
+      '@mikro-orm/migrations': 5.6.0_@mikro-orm+core@5.6.0
+      '@mikro-orm/postgresql': 5.5.3_14b0d42d6699fd1e13481867a14ea264
+      acorn-loose: 8.3.0
+      acorn-walk: 8.2.0
+      dotenv: 16.0.3
+      fs-extra: 11.1.0
+      globby: 11.1.0
+      mikro-orm: 5.6.0
+      reflect-metadata: 0.1.13
+    dev: false
+
+  /@mikro-orm/knex/5.5.3_03f79a9ce6bd132ad447e5acbc67f5c1:
     resolution: {integrity: sha512-vimh9DLsXwauuQj7Lrr70RP9tESIm4LB1BpUwMsj/6qRBaEBefV/BVQzPFDKUOe3bghB4kTEHAdJ7qCnpg1Byw==}
     engines: {node: '>= 14.0.0'}
     peerDependencies:
@@ -406,8 +455,8 @@ packages:
       sqlite3:
         optional: true
     dependencies:
-      '@mikro-orm/core': 5.5.3_fec5cd594e441bfa716ae14497f570e4
-      '@mikro-orm/migrations': 5.5.3_@mikro-orm+core@5.5.3
+      '@mikro-orm/core': 5.6.0_ee086e628506e458ffe91dd96c8394a9
+      '@mikro-orm/migrations': 5.6.0_@mikro-orm+core@5.6.0
       fs-extra: 10.1.0
       knex: 2.3.0_pg@8.8.0
       pg: 8.8.0
@@ -418,14 +467,14 @@ packages:
       - tedious
     dev: false
 
-  /@mikro-orm/knex/5.5.3_d440012c1d2c63fceb888afe1b76e2e7:
-    resolution: {integrity: sha512-vimh9DLsXwauuQj7Lrr70RP9tESIm4LB1BpUwMsj/6qRBaEBefV/BVQzPFDKUOe3bghB4kTEHAdJ7qCnpg1Byw==}
+  /@mikro-orm/knex/5.6.0_03f79a9ce6bd132ad447e5acbc67f5c1:
+    resolution: {integrity: sha512-z42UKMQDF4c+w+McJLgIKxiFGIIsi6AqPdzInGAWorxCZxDkjLk3wQxLw16+mN9XaUQ9nEu3mIcOstLvR0mZPQ==}
     engines: {node: '>= 14.0.0'}
     peerDependencies:
       '@mikro-orm/core': ^5.0.0
       '@mikro-orm/entity-generator': ^5.0.0
       '@mikro-orm/migrations': ^5.0.0
-      better-sqlite3: ^7.0.0
+      better-sqlite3: ^8.0.0
       mssql: ^7.0.0
       mysql: ^2.18.1
       mysql2: ^2.1.0
@@ -449,9 +498,52 @@ packages:
       sqlite3:
         optional: true
     dependencies:
-      '@mikro-orm/core': 5.5.3_fec5cd594e441bfa716ae14497f570e4
-      '@mikro-orm/migrations': 5.5.3_@mikro-orm+core@5.5.3
-      fs-extra: 10.1.0
+      '@mikro-orm/core': 5.6.0_a42176b4e234c9fcbcbbde3937f0afc4
+      '@mikro-orm/migrations': 5.6.0_@mikro-orm+core@5.6.0
+      fs-extra: 11.1.0
+      knex: 2.3.0_pg@8.8.0
+      pg: 8.8.0
+      sqlstring: 2.3.3
+    transitivePeerDependencies:
+      - pg-native
+      - supports-color
+      - tedious
+    dev: false
+
+  /@mikro-orm/knex/5.6.0_14b0d42d6699fd1e13481867a14ea264:
+    resolution: {integrity: sha512-z42UKMQDF4c+w+McJLgIKxiFGIIsi6AqPdzInGAWorxCZxDkjLk3wQxLw16+mN9XaUQ9nEu3mIcOstLvR0mZPQ==}
+    engines: {node: '>= 14.0.0'}
+    peerDependencies:
+      '@mikro-orm/core': ^5.0.0
+      '@mikro-orm/entity-generator': ^5.0.0
+      '@mikro-orm/migrations': ^5.0.0
+      better-sqlite3: ^8.0.0
+      mssql: ^7.0.0
+      mysql: ^2.18.1
+      mysql2: ^2.1.0
+      pg: ^8.0.3
+      sqlite3: ^5.0.0
+    peerDependenciesMeta:
+      '@mikro-orm/entity-generator':
+        optional: true
+      '@mikro-orm/migrations':
+        optional: true
+      better-sqlite3:
+        optional: true
+      mssql:
+        optional: true
+      mysql:
+        optional: true
+      mysql2:
+        optional: true
+      pg:
+        optional: true
+      sqlite3:
+        optional: true
+    dependencies:
+      '@mikro-orm/core': 5.6.0_ee086e628506e458ffe91dd96c8394a9
+      '@mikro-orm/migrations': 5.6.0_@mikro-orm+core@5.6.0
+      fs-extra: 11.1.0
       knex: 2.3.0
       sqlstring: 2.3.3
     transitivePeerDependencies:
@@ -460,15 +552,15 @@ packages:
       - tedious
     dev: false
 
-  /@mikro-orm/migrations/5.5.3_@mikro-orm+core@5.5.3:
-    resolution: {integrity: sha512-1RQ451TkR37Zbpl73NoI/9jSWQ1dM3SPvJeHd+R3nbwtDcYoPI8eCOi/wrCu+ylQgkDE+LyuFFO+y7DpxsdvOQ==}
+  /@mikro-orm/migrations/5.6.0_@mikro-orm+core@5.6.0:
+    resolution: {integrity: sha512-oiCd2SHRIbFscQHZffPqOiDIJAeyZg3zDhLxn7lULubGiBNHj1BPoaxhB7oeZPkd/LcOFmJKraAtOVWbOQmxew==}
     engines: {node: '>= 14.0.0'}
     peerDependencies:
       '@mikro-orm/core': ^5.0.0
     dependencies:
-      '@mikro-orm/core': 5.5.3_fec5cd594e441bfa716ae14497f570e4
-      '@mikro-orm/knex': 5.5.3_d440012c1d2c63fceb888afe1b76e2e7
-      fs-extra: 10.1.0
+      '@mikro-orm/core': 5.6.0_ee086e628506e458ffe91dd96c8394a9
+      '@mikro-orm/knex': 5.6.0_14b0d42d6699fd1e13481867a14ea264
+      fs-extra: 11.1.0
       knex: 2.3.0
       umzug: 3.2.1
     transitivePeerDependencies:
@@ -484,7 +576,7 @@ packages:
       - tedious
     dev: false
 
-  /@mikro-orm/postgresql/5.5.3_d440012c1d2c63fceb888afe1b76e2e7:
+  /@mikro-orm/postgresql/5.5.3_14b0d42d6699fd1e13481867a14ea264:
     resolution: {integrity: sha512-9rJEDT6nfkHOyP4p25AOYbgTkjrlXHlm8e+u1FFW2CZKpdxpmH3hiY5H1x8muOI/fvHP7njt2Da71i2MXakw0g==}
     engines: {node: '>= 14.0.0'}
     peerDependencies:
@@ -500,9 +592,40 @@ packages:
       '@mikro-orm/seeder':
         optional: true
     dependencies:
-      '@mikro-orm/core': 5.5.3_fec5cd594e441bfa716ae14497f570e4
-      '@mikro-orm/knex': 5.5.3_3e70fdd45035334240d9fce37e469027
-      '@mikro-orm/migrations': 5.5.3_@mikro-orm+core@5.5.3
+      '@mikro-orm/core': 5.6.0_ee086e628506e458ffe91dd96c8394a9
+      '@mikro-orm/knex': 5.5.3_03f79a9ce6bd132ad447e5acbc67f5c1
+      '@mikro-orm/migrations': 5.6.0_@mikro-orm+core@5.6.0
+      pg: 8.8.0
+    transitivePeerDependencies:
+      - better-sqlite3
+      - mssql
+      - mysql
+      - mysql2
+      - pg-native
+      - sqlite3
+      - supports-color
+      - tedious
+    dev: false
+
+  /@mikro-orm/postgresql/5.6.0_14b0d42d6699fd1e13481867a14ea264:
+    resolution: {integrity: sha512-ujnhkUwn0MMYodX2D6jINbdpoGsk/jhUDgRmUQZ5vQYOa5zYCilkeEkVmMRswFTH0B+h7K7infmGdfQUU6Mk4Q==}
+    engines: {node: '>= 14.0.0'}
+    peerDependencies:
+      '@mikro-orm/core': ^5.0.0
+      '@mikro-orm/entity-generator': ^5.0.0
+      '@mikro-orm/migrations': ^5.0.0
+      '@mikro-orm/seeder': ^5.0.0
+    peerDependenciesMeta:
+      '@mikro-orm/entity-generator':
+        optional: true
+      '@mikro-orm/migrations':
+        optional: true
+      '@mikro-orm/seeder':
+        optional: true
+    dependencies:
+      '@mikro-orm/core': 5.6.0_a42176b4e234c9fcbcbbde3937f0afc4
+      '@mikro-orm/knex': 5.6.0_03f79a9ce6bd132ad447e5acbc67f5c1
+      '@mikro-orm/migrations': 5.6.0_@mikro-orm+core@5.6.0
       pg: 8.8.0
     transitivePeerDependencies:
       - better-sqlite3
@@ -1880,6 +2003,15 @@ packages:
       universalify: 2.0.0
     dev: false
 
+  /fs-extra/11.1.0:
+    resolution: {integrity: sha512-0rcTq621PD5jM/e0a3EJoGC/1TC5ZBCERW82LQuwfGnCa1V8w7dpYH1yNu+SLb6E5dkeCBzKEyLGlFrnr+dUyw==}
+    engines: {node: '>=14.14'}
+    dependencies:
+      graceful-fs: 4.2.10
+      jsonfile: 6.1.0
+      universalify: 2.0.0
+    dev: false
+
   /fs-jetpack/4.3.1:
     resolution: {integrity: sha512-dbeOK84F6BiQzk2yqqCVwCPWTxAvVGJ3fMQc6E2wuEohS28mR6yHngbrKuVCK1KHRx/ccByDylqu4H5PCP2urQ==}
     dependencies:
@@ -1969,8 +2101,8 @@ packages:
       once: 1.4.0
     dev: false
 
-  /globby/11.0.4:
-    resolution: {integrity: sha512-9O4MVG9ioZJ08ffbcyVYyLOJLk5JQ688pJ4eMGLpdWLHq/Wr1D9BlriLQyL0E+jbkuePVZXYFj47QM/v093wHg==}
+  /globby/11.1.0:
+    resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
     engines: {node: '>=10'}
     dependencies:
       array-union: 2.1.0
@@ -2537,8 +2669,8 @@ packages:
       picomatch: 2.3.1
     dev: false
 
-  /mikro-orm/5.5.3:
-    resolution: {integrity: sha512-aF2FfyB4OI+1LEXM57mPFfpj/OpmghGZq4Hmi4kHB6920GyqeruBYLMiFkT7MflHVgLCfj+2tZV8+uBsGWBEDQ==}
+  /mikro-orm/5.6.0:
+    resolution: {integrity: sha512-ZG77XtJTFP/VZpXYv8JzHuRFCfqsNNIU95fMDuiT9kiCUzLeod9FQgpIQhAeWhNvHantxvL/k4xAYCnT3j2XXA==}
     engines: {node: '>= 14.0.0'}
     dev: false
 
@@ -3466,14 +3598,14 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
-  file:projects/balances.tgz_795a39bad6061566f3b457dddeaf4fbf:
-    resolution: {integrity: sha512-stHyHqfHOjFiDZ2KQFKd9o6L54tqUr05yWYR0uEful3sI12krbs94l9d68FFO/BpP9Cmjn6IAYbTxMAOB2qP/w==, tarball: file:projects/balances.tgz}
+  file:projects/balances.tgz_ad5c92d4b8222b029f64000c977c32cd:
+    resolution: {integrity: sha512-Xf7NoXRCcVQlYRC+YlsStZkqjU14pq/0VY2tt+WxB/0pH8t/NUN8lZi+8hXpamDObNJmF3wi4mk3FfH54bzX/Q==, tarball: file:projects/balances.tgz}
     id: file:projects/balances.tgz
     name: '@rush-temp/balances'
     version: 0.0.0
     dependencies:
-      '@mikro-orm/core': 5.5.3_fec5cd594e441bfa716ae14497f570e4
-      '@mikro-orm/postgresql': 5.5.3_d440012c1d2c63fceb888afe1b76e2e7
+      '@mikro-orm/core': 5.6.0_a42176b4e234c9fcbcbbde3937f0afc4
+      '@mikro-orm/postgresql': 5.6.0_14b0d42d6699fd1e13481867a14ea264
       '@subsquid/archive-registry': 1.0.15
       '@subsquid/graphql-server': 3.2.2_@subsquid+big-decimal@0.0.0
       '@subsquid/ss58': 0.1.2
@@ -3512,13 +3644,13 @@ packages:
       - utf-8-validate
     dev: false
 
-  file:projects/mikroorm-codegen.tgz_d9c363ef7a217791235c5cd0215d52cf:
-    resolution: {integrity: sha512-cIL66wsY3EvkEs0OkX1gsvxfqRhYLDXfKh5To7s35kPui3ssY7dXLvCTXPYxXVlPuowIsTccVqyOcV+yfV90Ag==, tarball: file:projects/mikroorm-codegen.tgz}
+  file:projects/mikroorm-codegen.tgz_4f97b771123e7b4d6ae50d34e6a1e2cb:
+    resolution: {integrity: sha512-oEiiSA42KqMOly0GRpzYyJmVsA/GIGuIs6FtfQpJ4/4ZD6Io/LXAVNwwJtNAk6x5mB0UmYUYR1lhareO8+HP2w==, tarball: file:projects/mikroorm-codegen.tgz}
     id: file:projects/mikroorm-codegen.tgz
     name: '@rush-temp/mikroorm-codegen'
     version: 0.0.0
     dependencies:
-      '@mikro-orm/core': 5.5.3_fec5cd594e441bfa716ae14497f570e4
+      '@mikro-orm/core': 5.6.0_ee086e628506e458ffe91dd96c8394a9
       '@subsquid/openreader': 3.1.4_@subsquid+big-decimal@0.0.0
       '@subsquid/util-internal': 0.0.1
       '@subsquid/util-internal-code-printer': 0.0.2
@@ -3545,13 +3677,14 @@ packages:
       - utf-8-validate
     dev: false
 
-  file:projects/mikroorm-config.tgz_fec5cd594e441bfa716ae14497f570e4:
-    resolution: {integrity: sha512-wfd/t4VZ7Zw+PwcGWUUA484YU/xXQTE+hJszXAS/67pC5ZACyBIXVc00LJaUlQCEQqvCfKXPHH1S2ggRz4K6yA==, tarball: file:projects/mikroorm-config.tgz}
+  file:projects/mikroorm-config.tgz_@mikro-orm+migrations@5.6.0:
+    resolution: {integrity: sha512-+hMG2O6pn4uj9EgKyc5niJi1XjX3oALW6dqQ5+9VgaojXaGz/z1y1DjPRph1gRrOEnJZ+j6e6WH5tR0IWq9OSw==, tarball: file:projects/mikroorm-config.tgz}
     id: file:projects/mikroorm-config.tgz
     name: '@rush-temp/mikroorm-config'
     version: 0.0.0
     dependencies:
-      '@mikro-orm/core': 5.5.3_fec5cd594e441bfa716ae14497f570e4
+      '@mikro-orm/core': 5.6.0_a42176b4e234c9fcbcbbde3937f0afc4
+      '@mikro-orm/postgresql': 5.6.0_14b0d42d6699fd1e13481867a14ea264
       '@subsquid/util-naming': 0.0.1
       '@types/node': 16.18.3
       typescript: 4.7.4
@@ -3563,19 +3696,26 @@ packages:
       - '@mikro-orm/migrations-mongodb'
       - '@mikro-orm/mongodb'
       - '@mikro-orm/mysql'
-      - '@mikro-orm/postgresql'
       - '@mikro-orm/seeder'
       - '@mikro-orm/sqlite'
+      - better-sqlite3
+      - mssql
+      - mysql
+      - mysql2
+      - pg-native
+      - sqlite3
+      - supports-color
+      - tedious
     dev: false
 
-  file:projects/mikroorm-migration.tgz:
-    resolution: {integrity: sha512-5HmSBVRjiQLUgX6y7bjtOgFRHRnUR6gYracKMj27LrAccuoX+CklToBz1r/2YRNWNXiBX7/QS2+6dYW1a0U72Q==, tarball: file:projects/mikroorm-migration.tgz}
+  file:projects/mikroorm-migration.tgz_@mikro-orm+postgresql@5.5.3:
+    resolution: {integrity: sha512-Fo4IfYlemm0/dtfOuBeLLv/UmxZ5QEbNt5iiKOUOadthfQJR+QwlpKRYgFeaTwGyrTzJw1MoD1wWNKgJk/zV6g==, tarball: file:projects/mikroorm-migration.tgz}
+    id: file:projects/mikroorm-migration.tgz
     name: '@rush-temp/mikroorm-migration'
     version: 0.0.0
     dependencies:
-      '@mikro-orm/core': 5.5.3_fec5cd594e441bfa716ae14497f570e4
-      '@mikro-orm/migrations': 5.5.3_@mikro-orm+core@5.5.3
-      '@mikro-orm/postgresql': 5.5.3_d440012c1d2c63fceb888afe1b76e2e7
+      '@mikro-orm/core': 5.6.0_ee086e628506e458ffe91dd96c8394a9
+      '@mikro-orm/migrations': 5.6.0_@mikro-orm+core@5.6.0
       '@subsquid/util-internal': 0.0.1
       '@subsquid/util-internal-code-printer': 0.0.2
       '@types/node': 16.18.3
@@ -3589,6 +3729,7 @@ packages:
       - '@mikro-orm/migrations-mongodb'
       - '@mikro-orm/mongodb'
       - '@mikro-orm/mysql'
+      - '@mikro-orm/postgresql'
       - '@mikro-orm/seeder'
       - '@mikro-orm/sqlite'
       - better-sqlite3
@@ -3602,14 +3743,13 @@ packages:
       - tedious
     dev: false
 
-  file:projects/mikroorm-store.tgz_@mikro-orm+migrations@5.5.3:
-    resolution: {integrity: sha512-GuwT+lvzYuFmqHQsZkn1oyQu6iItzpCSh7uUaWuIHX2ftq+EggAJxT/ZXywoGUgA781QHpCFui1vS3Cj2tzp3g==, tarball: file:projects/mikroorm-store.tgz}
+  file:projects/mikroorm-store.tgz_ee086e628506e458ffe91dd96c8394a9:
+    resolution: {integrity: sha512-4flGpk37fYbtHnCEdq5BVFVfa9CK8BecssFhlJobAEqTLYA8aNpCzSIU/BioYJQ/UHgncOMdTSSAcan6mdG8dg==, tarball: file:projects/mikroorm-store.tgz}
     id: file:projects/mikroorm-store.tgz
     name: '@rush-temp/mikroorm-store'
     version: 0.0.0
     dependencies:
-      '@mikro-orm/core': 5.5.3_fec5cd594e441bfa716ae14497f570e4
-      '@mikro-orm/postgresql': 5.5.3_d440012c1d2c63fceb888afe1b76e2e7
+      '@mikro-orm/core': 5.6.0_ee086e628506e458ffe91dd96c8394a9
       '@subsquid/util-internal': 1.0.0
       '@types/mocha': 9.1.1
       '@types/node': 16.18.3
@@ -3626,25 +3766,19 @@ packages:
       - '@mikro-orm/migrations-mongodb'
       - '@mikro-orm/mongodb'
       - '@mikro-orm/mysql'
+      - '@mikro-orm/postgresql'
       - '@mikro-orm/seeder'
       - '@mikro-orm/sqlite'
-      - better-sqlite3
-      - mssql
-      - mysql
-      - mysql2
       - pg-native
-      - sqlite3
-      - supports-color
-      - tedious
     dev: false
 
-  file:projects/store-test.tgz_fec5cd594e441bfa716ae14497f570e4:
-    resolution: {integrity: sha512-UDZp9t5CefxumqKCBdWCAvo+LXw7iEbJ9wK4FzegJJWk0g9ZX5zjDAPDmxoRXtHHHnvdAoMmJHdpOvr0lNofzg==, tarball: file:projects/store-test.tgz}
+  file:projects/store-test.tgz_ee086e628506e458ffe91dd96c8394a9:
+    resolution: {integrity: sha512-RJPMQRxAL5ouQhkdny+sRhW0vmyn5nDs54178q+lZt1MzkGcFGB198IlZLo3iVdIDzDv9Pm8RVvPtp0+AqI8yQ==, tarball: file:projects/store-test.tgz}
     id: file:projects/store-test.tgz
     name: '@rush-temp/store-test'
     version: 0.0.0
     dependencies:
-      '@mikro-orm/core': 5.5.3_fec5cd594e441bfa716ae14497f570e4
+      '@mikro-orm/core': 5.6.0_ee086e628506e458ffe91dd96c8394a9
       '@subsquid/big-decimal': 0.0.0
       '@subsquid/util-internal': 1.0.0
       '@types/mocha': 9.1.1

@@ -5,12 +5,38 @@ type Scalar @entity {
   bigint: BigInt
   bigdecimal: BigDecimal
   string: String
-  dateTime: DateTime
+  datetime: DateTime
   bytes: Bytes
   json: JSON
+  array: [BigInt]
 }
 
-type Item  @entity {
+type Item @entity {
   id: ID!
   name: String!
 }
+
+type Test @entity {
+  json: MyJson
+  enum: MyEnum
+  array: [BigInt]
+  union: MyUnion
+}
+
+type MyJson {
+  boolean: Boolean
+  bigint: BigInt
+  bigdecimal: BigDecimal
+  string: String
+  datetime: DateTime
+  bytes: Bytes
+  json: JSON
+  enum: MyEnum
+}
+
+enum MyEnum {
+  A
+  B
+}
+
+union MyUnion = MyJson

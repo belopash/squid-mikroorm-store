@@ -49,7 +49,7 @@ let connection: Promise<MikroORM> | undefined
 export function getEntityManager(): Promise<EntityManager> {
     if (connection == null) {
         let cfg = createOrmConfig()
-        connection = MikroORM.init({...cfg, debug: ['query'], flushMode: FlushMode.AUTO})
+        connection = MikroORM.init({...cfg, debug: true, flushMode: FlushMode.AUTO})
     }
     return connection.then((con) => con.em.fork())
 }

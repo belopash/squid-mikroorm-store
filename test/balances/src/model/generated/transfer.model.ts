@@ -8,7 +8,7 @@ export class Transfer {
     Object.assign(this, props)
   }
 
-  @PrimaryKey_()
+  @PrimaryKey_({type: types.StringType})
   id!: string
 
   @Index_()

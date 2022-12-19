@@ -1,4 +1,3 @@
-import {assertNotNull} from '@subsquid/util-internal'
 import expect from 'expect'
 import {Item} from './model'
 import {createStore, useDatabase} from './util'

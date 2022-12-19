@@ -1,6 +1,6 @@
 import {BigDecimal} from "@subsquid/big-decimal"
 import {Entity as Entity_, Property as Property_, PrimaryKey as PrimaryKey_} from "@mikro-orm/core"
-import * as types from "./types"
+import {types} from "./support"
 
 @Entity_()
 export class Scalar {
@@ -11,27 +11,30 @@ export class Scalar {
   /**
    * Account address
    */
-  @PrimaryKey_({type: types.StringType})
+  @PrimaryKey_({type: types.String})
   id!: string
 
-  @Property_({type: types.BooleanType, nullable: true})
+  @Property_({type: types.Boolean, nullable: true})
   boolean!: boolean | undefined | null
 
-  @Property_({type: types.BigIntType, nullable: true})
+  @Property_({type: types.BigInt, nullable: true})
   bigint!: bigint | undefined | null
 
-  @Property_({type: types.BigDecimalType, nullable: true})
+  @Property_({type: types.BigDecimal, nullable: true})
   bigdecimal!: BigDecimal | undefined | null
 
-  @Property_({type: types.StringType, nullable: true})
+  @Property_({type: types.String, nullable: true})
   string!: string | undefined | null
 
-  @Property_({type: types.DateTimeType, nullable: true})
-  dateTime!: Date | undefined | null
+  @Property_({type: types.DateTime, nullable: true})
+  datetime!: Date | undefined | null
 
-  @Property_({type: types.BytesType, nullable: true})
+  @Property_({type: types.Bytes, nullable: true})
   bytes!: Uint8Array | undefined | null
 
-  @Property_({type: types.JSONType, nullable: true})
+  @Property_({type: types.JSON, nullable: true})
   json!: unknown | undefined | null
+
+  @Property_({type: types.Array(types.BigInt), nullable: true})
+  array!: (bigint | undefined | null)[] | undefined | null
 }

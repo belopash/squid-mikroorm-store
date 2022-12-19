@@ -1,12 +1,13 @@
-import assert from 'assert'
-import {EntityManager, EntityClass, Entity} from '@mikro-orm/core'
+import {
+    EntityManager,
+    EntityClass,
+    Entity,
+    FindOptions,
+    FindOneOptions as FindOneOptions_,
+    CountOptions as CountOptions_,
+} from '@mikro-orm/core'
 import {FilterQuery} from '@mikro-orm/core/typings'
 import {assertNotNull} from '@subsquid/util-internal'
-// import {ColumnMetadata} from '/metadata/ColumnMetadata'
-
-// export interface EntityClass<T> {
-//     new (): T
-// }
 
 export interface Entity {
     id: string
@@ -15,33 +16,9 @@ export interface Entity {
 /**
  * Defines a special criteria to find specific entity.
  */
-// export interface FindOneOptions<Entity = any> {
-//     /**
-//      * Adds a comment with the supplied string in the generated query.  This is
-//      * helpful for debugging purposes, such as finding a specific query in the
-//      * database server's logs, or for categorization using an APM product.
-//      */
-//     comment?: string
-//     /**
-//      * Indicates what relations of entity should be loaded (simplified left join form).
-//      */
-//     relations?: FindOptionsRelations<Entity>
-//     /**
-//      * Order, in which entities should be ordered.
-//      */
-//     order?: FindOptionsOrder<Entity>
-// }
+export type FindManyOptions<E extends Entity = any> = Pick<FindOptions<E>, 'orderBy' | 'limit' | 'offset'>
 
-// export interface FindManyOptions<Entity = any> extends FindOneOptions<Entity> {
-//     /**
-//      * Offset (paginated) where from entities should be taken.
-//      */
-//     skip?: number
-//     /**
-//      * Limit (paginated) - max number of entities should be taken.
-//      */
-//     take?: number
-// }
+export type FindOneOptions<E extends Entity = any> = Pick<FindOneOptions_<E>, 'orderBy'>
 
 /**
  * Restricted version of  entity manager for squid data handlers.
@@ -109,24 +86,23 @@ export class Store {
         return this.em().count(entityClass, where)
     }
 
-    find<E extends Entity>(entityClass: EntityClass<E>, where: FilterQuery<E>): Promise<E[]> {
-        return this.em().find(entityClass, where)
+    find<E extends Entity>(entityClass: EntityClass<E>, where: FilterQuery<E>, options?: FindManyOptions): Promise<E[]> {
+        return this.em().find(entityClass, where, options)
     }
 
-    findOne<E extends Entity>(entityClass: EntityClass<E>, where: FilterQuery<E>): Promise<E | undefined> {
-        return this.em().findOne(entityClass, where).then(noNull)
+    findOne<E extends Entity>(entityClass: EntityClass<E>, where: FilterQuery<E>, options?: FindOneOptions): Promise<E | undefined> {
+        return this.em().findOne(entityClass, where, options).then(noNull)
     }
 
-    findOneOrFail<E extends Entity>(entityClass: EntityClass<E>, where: FilterQuery<E>): Promise<E> {
-        return this.em().findOneOrFail(entityClass, where)
+    findOneOrFail<E extends Entity>(entityClass: EntityClass<E>, where: FilterQuery<E>, options?: FindOneOptions): Promise<E> {
+        return this.em().findOneOrFail(entityClass, where, options)
     }
 
     get<E extends Entity>(entityClass: EntityClass<E>, id: string): E | undefined {
         let uow = this.em().getUnitOfWork()
         let item = uow.getById<E>(entityClass.name, id as any)
-
         if (item == null) {
-            let persistMap = new Map<string, E>([...uow.getPersistStack()].map(e => [e.id, e as E]))
+            let persistMap = new Map<string, E>([...uow.getPersistStack()].map((e) => [e.id, e as E]))
             return persistMap.get(id)
         } else {
             if (uow.getRemoveStack().has(item)) {
@@ -136,11 +112,9 @@ export class Store {
             }
         }
     }
-
     getOrFail<E extends Entity>(entityClass: EntityClass<E>, id: string): E {
         return assertNotNull(this.get<E>(entityClass, id))
     }
-
     async getOrPersist<E extends Entity>(
         entityClass: EntityClass<E>,
         id: string,

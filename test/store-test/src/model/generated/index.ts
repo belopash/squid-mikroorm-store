@@ -1,2 +1,6 @@
 export * from "./scalar.model"
 export * from "./item.model"
+export * from "./test.model"
+export * from "./_myJson"
+export * from "./_myEnum"
+export * from "./_myUnion"

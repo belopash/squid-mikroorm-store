@@ -1,5 +1,5 @@
 import {Entity as Entity_, Property as Property_, PrimaryKey as PrimaryKey_} from "@mikro-orm/core"
-import * as types from "./types"
+import {types} from "./support"
 
 @Entity_()
 export class Item {
@@ -7,9 +7,9 @@ export class Item {
     Object.assign(this, props)
   }
 
-  @PrimaryKey_({type: types.StringType})
+  @PrimaryKey_({type: types.String})
   id!: string
 
-  @Property_({type: types.StringType, nullable: false})
+  @Property_({type: types.String, nullable: false})
   name!: string
 }
