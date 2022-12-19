@@ -1,4 +1,4 @@
-import {Platform, Type} from '@mikro-orm/core'
+import {Constructor, EntityProperty, Platform, Type} from '@mikro-orm/core'
 import assert from 'assert'
 
 export class IntType extends Type<number | null | undefined> {
@@ -164,13 +164,15 @@ export class DateTimeType extends Type<Date | null | undefined, string | null | 
         return value?.toISOString()
     }
 
-    convertToJSValue(value: string | null | undefined): Date | null | undefined {
+    convertToJSValue(value: string | Date | null | undefined): Date | null | undefined {
         if (value == null) {
             return undefined
-        } else {
-            assert(typeof value === 'string', 'invalid DateTime')
+        } else if (typeof value === 'string') {
             assert(isIsoDateTimeString(value), 'invalid DateTime')
             return new Date(value)
+        } else {
+            assert(value instanceof Date, 'invalid DateTime')
+            return value
         }
     }
 
@@ -187,20 +189,20 @@ export class DateTimeType extends Type<Date | null | undefined, string | null | 
     }
 }
 
-export class BytesType extends Type<Buffer | null | undefined> {
-    convertToDatabaseValue(value: Buffer | null | undefined): Buffer | null | undefined {
-        return value
+export class BytesType extends Type<Uint8Array | null | undefined, Buffer | null | undefined> {
+    convertToDatabaseValue(value: Uint8Array | null | undefined): Buffer | null | undefined {
+        return value ? Buffer.from(value.buffer, value.byteOffset, value.byteLength) : undefined
     }
 
-    convertToJSValue(value: Buffer | string | null | undefined): Buffer | null | undefined {
+    convertToJSValue(value: Buffer | Uint8Array | string | null | undefined): Uint8Array | undefined {
         if (value == null) {
             return undefined
         } else if (typeof value === 'string') {
             assert(value.length % 2 === 0, 'invalid Bytes')
             assert(/^0x[0-9a-f]+$/i.test(value), 'invalid Bytes')
-            return Buffer.from(value.slice(2), 'hex')
+            return new Uint8Array(Buffer.from(value.slice(2), 'hex'))
         } else {
-            return value
+            return Uint8Array.from(value)
         }
     }
 
@@ -224,7 +226,7 @@ export class BytesType extends Type<Buffer | null | undefined> {
 }
 
 export class JSONType<T> extends Type<T | null | undefined, string | null | undefined> {
-    constructor(private jsonClass: {fromJSON: (json: any) => T}) {
+    constructor(private transformer: (json: any) => T) {
         super()
     }
 
@@ -233,7 +235,7 @@ export class JSONType<T> extends Type<T | null | undefined, string | null | unde
     }
 
     convertToJSValue(value: string | null | undefined): T | null | undefined {
-        return value ? this.jsonClass.fromJSON(JSON.parse(value)) : undefined
+        return value ? this.transformer(JSON.parse(value)) : undefined
     }
 
     getColumnType(): string {
@@ -259,38 +261,41 @@ export class JSONType<T> extends Type<T | null | undefined, string | null | unde
 //     boolean: BooleanType,
 // }
 
-// export class ArrayType<T extends Type<any, any>> extends Type<ReturnType<T['getColumnType']>[], string> {
-//     constructor(private itemType: T) {
-//         super()
-//     }
+export class ArrayType<T extends Type<any, any>> extends Type<any[], string> {
+    private itemType: T
 
-//     convertToDatabaseValue(value: ReturnType<T['getColumnType']>[] | string, platform: Platform): string {
-//         return Array.isArray(value)
-//             ? platform.marshallArray(value.map((i) => this.itemType.convertToDatabaseValue(i, platform)))
-//             : value
-//     }
+    constructor(itemType: T | Constructor<T>) {
+        super()
+        this.itemType = typeof itemType === 'function' ? new itemType() : itemType
+    }
 
-//     convertToJSValue(
-//         value: string | ReturnType<T['getColumnType']>[],
-//         platform: Platform
-//     ): ReturnType<T['getColumnType']>[] {
-//         return Array.isArray(value)
-//             ? (platform.marshallArray(value.map((i) => this.itemType.convertToJSValue(i, platform))) as any)
-//             : value
-//     }
+    convertToDatabaseValue(value: T extends Type<infer R> ? R[] : never, platform: Platform): string {
+        return `{${value.map((v) => this.itemType.convertToDatabaseValue(v, platform)).join(',')}}`
+    }
 
-//     compareAsType(): string {
-//         return 'array'
-//     }
+    convertToJSValue(value: string | any[], platform: Platform): any[] {
+        if (Array.isArray(value)) {
+            return value.map((v) => this.itemType.convertToJSValue(v, platform))
+        } else {
+            return value
+                .substring(1, value.length - 1)
+                .split(',')
+                .map((v) => this.itemType.convertToJSValue(v, platform))
+        }
+    }
 
-//     toJSON(value) {
-//         return value
-//     }
+    compareAsType(): string {
+        return 'array'
+    }
 
-//     getColumnType(prop, platform) {
-//         return this.itemType
-//     }
-// }
+    toJSON(value: T extends Type<infer R> ? R[] : never, platform: Platform) {
+        return value.map((v) => this.itemType.toJSON(v, platform))
+    }
+
+    getColumnType(prop: EntityProperty, platform: Platform) {
+        return `${this.itemType.getColumnType(prop, platform)} array`
+    }
+}
 
 // export interface Marshal<T, S> {
 //     fromJSON(value: unknown): T

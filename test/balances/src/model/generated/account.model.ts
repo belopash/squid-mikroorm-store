@@ -11,11 +11,13 @@ export class Account {
   /**
    * Account address
    */
-  @PrimaryKey_()
+  @PrimaryKey_({type: types.StringType})
   id!: string
 
   @Property_({type: types.BigIntType, nullable: false})
   transfersCount!: bigint
+
+
 
   @Property_({type: new types.JSONType(Test), nullable: true})
   test!: Test | undefined | null

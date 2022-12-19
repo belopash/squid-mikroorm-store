@@ -41,10 +41,10 @@ describe('Store', function () {
         it('persist of a single entity', async function () {
             let store = await createStore()
             store.persist(new Item({id: '4', name: 'd'}))
-            await store.flush()
-            store.clear()
+            // await store.flush()
+            // store.clear()
 
-            await expect(store.findOne(Item, '4')).resolves.toMatchObject({id: '4', name: 'd'})
+            await expect(store.get(Item, '4')).resolves.toMatchObject({id: '4', name: 'd'})
         })
 
         it('persist of multiple entities', async function () {

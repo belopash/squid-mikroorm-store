@@ -55,10 +55,10 @@ export class Test {
 
   static fromJSON(json: any): Test {
     return new Test({
-      a: json.a == null ? undefined : new types.IntType().fromJSON(json.a),
-      b: json.b == null ? undefined : new types.BigIntType().fromJSON(json.b),
-      c: json.c == null ? undefined : new types.StringType().fromJSON(json.c),
-      d: json.d == null ? undefined : new types.StringType().fromJSON(json.d),
+      a: json.a == null ? undefined : new types.IntType().convertToJSValue(json.a),
+      b: json.b == null ? undefined : new types.BigIntType().convertToJSValue(json.b),
+      c: json.c == null ? undefined : new types.StringType().convertToJSValue(json.c),
+      d: json.d == null ? undefined : new types.StringType().convertToJSValue(json.d),
     })
   }
 }

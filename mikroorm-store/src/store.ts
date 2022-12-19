@@ -1,5 +1,5 @@
 import assert from 'assert'
-import {EntityManager, EntityClass, Entity} from '@mikro-orm/core'
+import {EntityManager, EntityClass, Entity, FlushMode} from '@mikro-orm/core'
 import {FilterQuery} from '@mikro-orm/core/typings'
 import {assertNotNull} from '@subsquid/util-internal'
 // import {ColumnMetadata} from '/metadata/ColumnMetadata'
@@ -121,38 +121,39 @@ export class Store {
         return this.em().findOneOrFail(entityClass, where)
     }
 
-    get<E extends Entity>(entityClass: EntityClass<E>, id: string): E | undefined {
-        let uow = this.em().getUnitOfWork()
-        let item = uow.getById<E>(entityClass.name, id as any)
+    get<E extends Entity>(entityClass: EntityClass<E>, id: string): Promise<E | undefined> {
+        // let uow = this.em().getUnitOfWork()
+        // let item = uow.getById<E>(entityClass.name, id as any)
 
-        if (item == null) {
-            let persistMap = new Map<string, E>([...uow.getPersistStack()].map(e => [e.id, e as E]))
-            return persistMap.get(id)
-        } else {
-            if (uow.getRemoveStack().has(item)) {
-                return undefined
-            } else {
-                return item
-            }
-        }
+        // if (item == null) {
+        //     let persistMap = new Map<string, E>([...uow.getPersistStack()].map(e => [e.id, e as E]))
+        //     return persistMap.get(id)
+        // } else {
+        //     if (uow.getRemoveStack().has(item)) {
+        //         return undefined
+        //     } else {
+        //         return item
+        //     }
+        // }
+        return this.em().findOne(entityClass, id as any, {flushMode: FlushMode.COMMIT}).then(noNull)
     }
 
-    getOrFail<E extends Entity>(entityClass: EntityClass<E>, id: string): E {
-        return assertNotNull(this.get<E>(entityClass, id))
+    getOrFail<E extends Entity>(entityClass: EntityClass<E>, id: string): Promise<E> {
+        return this.em().findOneOrFail(entityClass, id as any)
     }
 
-    async getOrPersist<E extends Entity>(
-        entityClass: EntityClass<E>,
-        id: string,
-        create: (id: string) => E
-    ): Promise<E | undefined> {
-        let e = this.get<E>(entityClass, id)
-        if (!e) {
-            e = create(id)
-            this.persist(e)
-        }
-        return e
-    }
+    // async getOrPersist<E extends Entity>(
+    //     entityClass: EntityClass<E>,
+    //     id: string,
+    //     create: (id: string) => E
+    // ): Promise<E | undefined> {
+    //     let e = this.get<E>(entityClass, id)
+    //     if (!e) {
+    //         e = create(id)
+    //         this.persist(e)
+    //     }
+    //     return e
+    // }
 
     persist<E extends Entity>(e: E | E[]) {
         return this.em().persist(e)

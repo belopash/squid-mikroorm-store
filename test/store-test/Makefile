@@ -1,5 +1,5 @@
 test:
-	@npx mocha -r dotenv/config lib/*.test.js --exit --timeout 5000
+	@npx mocha -r dotenv/config lib/scalars.test.js --exit --timeout 5000
 
 
 up:
