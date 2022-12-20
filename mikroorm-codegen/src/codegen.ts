@@ -66,7 +66,9 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
                     case 'enum':
                         imports.useMikroorm('Enum')
                         addIndexAnnotation(entity, key, imports, out)
-                        out.line(`@Enum_({type: types.String, items: () => ${prop.type.name}, nullable: ${prop.nullable}})`)
+                        out.line(
+                            `@Enum_({type: types.String, items: () => ${prop.type.name}, nullable: ${prop.nullable}})`
+                        )
                         break
                     case 'fk':
                         if (getFieldIndex(entity, key)?.unique) {
@@ -116,10 +118,7 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
                             case 'union':
                             case 'list':
                                 out.line(
-                                    `@Property_("jsonb", {transformer: {to: obj => ${typesToJson(
-                                        prop,
-                                        'obj'
-                                    )}, from: obj => ${typesFromJson(prop, 'obj', imports)}}, nullable: ${
+                                    `@Property_({type: types.JSONarray(${toArrayItemType(prop.type.item)}), nullable: ${
                                         prop.nullable
                                     }})`
                                 )

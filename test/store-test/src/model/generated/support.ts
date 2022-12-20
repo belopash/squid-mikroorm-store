@@ -263,6 +263,35 @@ export class JSONType<T> extends JsonType {
     }
 }
 
+export class JSONArrayType<T extends ScalarType> extends JsonType {
+    private itemType: ScalarType
+
+    constructor(itemType: T | Constructor<T>) {
+        super()
+        this.itemType = typeof itemType === 'function' ? new itemType() : itemType
+    }
+
+    convertToDatabaseValue(value: any[] | undefined): string | null {
+        return this.toJSON(value) ?? null
+    }
+
+    convertToJSValue(value: any[] | undefined): any[] | undefined {
+        return value?.map((v) => this.itemType.convertToJSValue(v))
+    }
+
+    compareAsType(): string {
+        return 'any'
+    }
+
+    toJSON(value: any[] | undefined): string | undefined {
+        return value ? JSON.stringify(value.map((v) => this.itemType.toJSON(v))) : undefined
+    }
+
+    getColumnType(prop: EntityProperty) {
+        return `jsonb`
+    }
+}
+
 type ScalarType = {
     convertToDatabaseValue(value: any): any
     getColumnType(prop: EntityProperty): string
@@ -351,6 +380,7 @@ export const types = {
     Bytes: new BytesType(),
     JSON: new JSONType(),
     JSONobj: (transformer?: (json: any) => unknown) => new JSONType(transformer),
+    JSONarray: <T extends ScalarType>(itemType: T | Constructor<T>) => new JSONArrayType(itemType),
     Array: <T extends ScalarType>(itemType: T | Constructor<T>) => new ArrayType(itemType),
 }
 
