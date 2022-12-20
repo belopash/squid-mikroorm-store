@@ -28,14 +28,14 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
     }
 
     index.write()
-    dir.add('types.ts', path.resolve(__dirname, '../src/types.ts'))
+    dir.add('support.ts', path.resolve(__dirname, '../src/support.ts'))
 
     function generateEntity(name: string, entity: Entity): void {
         index.line(`export * from "./${toCamelCase(name)}.model"`)
         const out = dir.file(`${toCamelCase(name)}.model.ts`)
         const imports = new ImportRegistry(name)
         imports.useMikroorm('Entity', 'Property', 'PrimaryKey')
-        imports.useMarshal()
+        imports.useSupport('types')
         out.lazy(() => imports.render(model, out))
         out.line()
         printComment(entity, out)
@@ -56,35 +56,24 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
                 switch (prop.type.kind) {
                     case 'scalar':
                         if (key === 'id') {
-                            out.line('@PrimaryKey_({type: types.StringType})')
+                            out.line('@PrimaryKey_({type: types.String})')
                         } else {
                             addIndexAnnotation(entity, key, imports, out)
-                            switch (prop.type.name) {
-                                case 'ID':
-                                    out.line(`@Property_({type: types.StringType, nullable: ${prop.nullable}})`)
-                                    break
-                                default:
-                                    out.line(
-                                        `@Property_({type: types.${prop.type.name}Type, nullable: ${prop.nullable}})`
-                                    )
-                                    break
-                            }
+                            out.line(`@Property_({type: types.${prop.type.name}, nullable: ${prop.nullable}})`)
+                            break
                         }
                         break
                     case 'enum':
+                        imports.useMikroorm('Enum')
                         addIndexAnnotation(entity, key, imports, out)
-                        out.line(
-                            `@Property_("varchar", {length: ${getEnumMaxLength(model, prop.type.name)}, nullable: ${
-                                prop.nullable
-                            }})`
-                        )
+                        out.line(`@Enum_({type: types.String, items: () => ${prop.type.name}, nullable: ${prop.nullable}})`)
                         break
                     case 'fk':
                         if (getFieldIndex(entity, key)?.unique) {
-                            imports.useMikroorm('OneToOne', 'Index', 'JoinColumn')
-                            out.line(`@Index_({unique: true})`)
+                            imports.useMikroorm('OneToOne', 'Index', 'Unique')
+                            out.line(`@Index_()`)
+                            out.line(`@Unique_()`)
                             out.line(`@OneToOne_(() => ${prop.type.entity}, {nullable: false, mapToPk: true})`)
-                            // out.line(`@JoinProperty_()`)
                         } else {
                             imports.useMikroorm('ManyToOne', 'Index')
                             if (
@@ -100,40 +89,45 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
                         }
                         break
                     case 'object':
+                        addIndexAnnotation(entity, key, imports, out)
+                        out.line(
+                            `@Property_({type: types.JSONobj(${prop.type.name}.fromJSON), nullable: ${prop.nullable}})`
+                        )
+                        break
                     case 'union':
                         addIndexAnnotation(entity, key, imports, out)
                         out.line(
-                            `@Property_({type: new types.JSONType(${prop.type.name}), nullable: ${prop.nullable}})`
+                            `@Property_({type: types.JSONobj(fromJson${prop.type.name}), nullable: ${prop.nullable}})`
                         )
                         break
                     case 'list':
-                        // switch (prop.type.item.type.kind) {
-                        //     case 'scalar':
-                        //         out.line(`@Property_("{array: true, nullable: ${prop.nullable}})`)
-                        //         break
-                        //     case 'enum':
-                        //         out.line(
-                        //             `@Property_("varchar", {length: ${getEnumMaxLength(
-                        //                 model,
-                        //                 prop.type.item.type.name
-                        //             )}, array: true, nullable: ${prop.nullable}})`
-                        //         )
-                        //         break
-                        //     case 'object':
-                        //     case 'union':
-                        //     case 'list':
-                        //         imports.useMarshal()
-                        //         out.line(
-                        //             `@Property_("jsonb", {transformer: {to: obj => ${typesToJson(
-                        //                 prop,
-                        //                 'obj'
-                        //             )}, from: obj => ${typesFromJson(prop, 'obj')}}, nullable: ${prop.nullable}})`
-                        //         )
-                        //         break
-                        //     default:
-                        //         throw unexpectedCase(prop.type.item.type.kind)
-                        // }
-                        throw unexpectedCase((prop.type as any).kind)
+                        switch (prop.type.item.type.kind) {
+                            case 'scalar':
+                                out.line(
+                                    `@Property_({type: types.Array(types.${prop.type.item.type.name}), nullable: ${prop.nullable}})`
+                                )
+                                break
+                            case 'enum':
+                                out.line(
+                                    `@Enum_({type: types.String, items: () => ${prop.type.item.type.name}, array: true, nullable: ${prop.nullable}})`
+                                )
+                                break
+                            case 'object':
+                            case 'union':
+                            case 'list':
+                                out.line(
+                                    `@Property_("jsonb", {transformer: {to: obj => ${typesToJson(
+                                        prop,
+                                        'obj'
+                                    )}, from: obj => ${typesFromJson(prop, 'obj', imports)}}, nullable: ${
+                                        prop.nullable
+                                    }})`
+                                )
+                                break
+                            default:
+                                throw unexpectedCase(prop.type.item.type.kind)
+                        }
+                        // throw unexpectedCase((prop.type as any).kind)
                         break
                     case 'lookup':
                     case 'list-lookup':
@@ -141,7 +135,7 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
                     default:
                         throw unexpectedCase((prop.type as any).kind)
                 }
-                out.line(`${key}!: ${getPropJsType(imports, 'entity', prop)}`)
+                out.line(`${key}!: ${getPropJs(imports, 'entity', prop)}`)
             }
         })
         out.write()
@@ -151,19 +145,19 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
         index.line(`export * from "./_${toCamelCase(name)}"`)
         const out = dir.file(`_${toCamelCase(name)}.ts`)
         const imports = new ImportRegistry(name)
-        imports.useMarshal()
+        imports.useSupport('types')
         imports.useAssert()
         out.lazy(() => imports.render(model, out))
         out.line()
         printComment(object, out)
         out.block(`export class ${name}`, () => {
             if (variants.has(name)) {
-                out.line(`public readonly isTypeOf = '${name}'`)
+                out.line(`public readonly isOf = '${name}'`)
             }
             for (const key in object.properties) {
                 const prop = object.properties[key]
                 importReferencedModel(imports, prop)
-                out.line(`private _${key}!: ${getPropJsType(imports, 'object', prop)}`)
+                out.line(`private _${key}!: ${getPropJs(imports, 'object', prop)}`)
             }
             out.line()
             out.block(`constructor(props?: Partial<Omit<${name}, 'toJSON'>>)`, () => {
@@ -173,14 +167,14 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
                 const prop = object.properties[key]
                 out.line()
                 printComment(prop, out)
-                out.block(`get ${key}(): ${getPropJsType(imports, 'object', prop)}`, () => {
+                out.block(`get ${key}(): ${getPropJs(imports, 'object', prop)}`, () => {
                     if (!prop.nullable) {
                         out.line(`assert(this._${key} != null, 'uninitialized access')`)
                     }
                     out.line(`return this._${key}`)
                 })
                 out.line()
-                out.block(`set ${key}(value: ${getPropJsType(imports, 'object', prop)})`, () => {
+                out.block(`set ${key}(value: ${getPropJs(imports, 'object', prop)})`, () => {
                     out.line(`this._${key} = value`)
                 })
             }
@@ -188,7 +182,7 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
             out.block(`toJSON(): object`, () => {
                 out.block('return', () => {
                     if (variants.has(name)) {
-                        out.line('isTypeOf: this.isTypeOf,')
+                        out.line('isOf: this.isOf,')
                     }
                     for (const key in object.properties) {
                         const prop = object.properties[key]
@@ -202,7 +196,7 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
                 out.indentation(() => {
                     for (const key in object.properties) {
                         const prop = object.properties[key]
-                        out.line(`${key}: ${typesFromJson(prop, 'json.' + key)},`)
+                        out.line(`${key}: ${typesFromJson(prop, 'json.' + key, imports)},`)
                     }
                 })
                 out.line(`})`)
@@ -224,35 +218,59 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
         }
     }
 
-    function typesFromJson(prop: Prop, exp: string): string {
+    function typesFromJson(prop: Prop, exp: string, imports: ImportRegistry): string {
         // assumes exp is a pure variable or prop access
+        imports.useSupport('types')
         let convert: string
         switch (prop.type.kind) {
             case 'scalar':
-                convert = `new types.${prop.type.name}Type().convertToJSValue(${exp})`
+                convert = `types.${prop.type.name}.convertToJSValue(${exp})`
                 break
             case 'enum':
-                convert = `types.enumFromJson(${exp}, ${prop.type.name})`
+                imports.useSupport('enumFromJson')
+                convert = `enumFromJson(${exp}, ${prop.type.name})`
                 break
             case 'fk':
-                convert = `new types.StringType().convertToJSValue(${exp})`
+                convert = `types.String.convertToJSValue(${exp})`
                 break
             case 'object':
-                convert = `new types.JSONType(${prop.type.name}).convertToJSValue(${exp})`
+                convert = `types.JSONobj(${prop.type.name}.fromJSON).convertToJSValue(${exp})`
                 break
             case 'union':
-                convert = `fromJson${prop.type.name}(${exp})`
+                convert = `types.JSONobj(fromJson${prop.type.name}).convertToJSValue(${exp})`
                 break
             case 'list':
-                convert = `types.fromList(${exp}, val => ${typesFromJson(prop.type.item, 'val')})`
+                switch (prop.type.item.type.kind) {
+                    case 'enum':
+                        imports.useSupport('enumFromJson')
+                        convert = `${exp}.map((i) => enumFromJson(i, ${prop.type.item.type.name}))`
+                        break
+                    default:
+                        convert = `types.Array(${toArrayItemType(prop.type.item)}).convertToJSValue(${exp})`
+                        break
+                }
                 break
             default:
                 throw unexpectedCase(prop.type.kind)
         }
-        if (prop.nullable) {
-            convert = `${exp} == null ? undefined : ${convert}`
-        }
         return convert
+    }
+
+    function toArrayItemType(prop: Prop): string {
+        switch (prop.type.kind) {
+            case 'scalar':
+                return `types.${prop.type.name}`
+            case 'fk':
+                return `types.String`
+            case 'object':
+                return `types.JSONobj(${prop.type.name}.fromJSON)`
+            case 'union':
+                return `types.JSONobj(fromJson${prop.type.name})`
+            case 'list':
+                return `types.Array(${toArrayItemType(prop.type.item)})`
+            default:
+                throw unexpectedCase(prop.type.kind)
+        }
     }
 
     function typesToJson(prop: Prop, exp: string): string {
@@ -260,18 +278,15 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
         let convert: string
         switch (prop.type.kind) {
             case 'scalar':
+                convert = `types.${prop.type.name}.toJSON(${exp})`
+                break
             case 'object':
             case 'union':
-                switch (prop.type.name) {
-                    case 'ID':
-                        convert = `types.StringType.toJSON(${exp})`
-                    default:
-                        convert = `new types.${prop.type.name}Type().toJSON(${exp})`
-                }
+                convert = `types.JSON.toJSON(${exp})`
                 break
             case 'enum':
             case 'fk':
-                convert = `new types.StringType().toJSON(${exp})`
+                convert = `types.String.toJSON(${exp})`
                 break
             case 'list': {
                 let types = typesToJson(prop.type.item, 'val')
@@ -298,11 +313,11 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
         out.line(`export type ${name} = ${union.variants.join(' | ')}`)
         out.line()
         out.block(`export function fromJson${name}(json: any): ${name}`, () => {
-            out.block(`switch(json?.isTypeOf)`, () => {
+            out.block(`switch(json?.isOf)`, () => {
                 union.variants.forEach((v) => {
-                    out.line(`case '${v}': return new ${v}(undefined, json)`)
+                    out.line(`case '${v}': return ${v}.fromJSON(json)`)
                 })
-                out.line(`default: throw new TypeError('Unknown json object passed as ${name}')`)
+                out.line(`default: throw new Error('Unknown json object passed as ${name}')`)
             })
         })
         out.write()
@@ -320,11 +335,11 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
     }
 }
 
-function getPropJsType(imports: ImportRegistry, owner: 'entity' | 'object', prop: Prop): string {
+function getPropJs(imports: ImportRegistry, owner: 'entity' | 'object', prop: Prop): string {
     let type: string
     switch (prop.type.kind) {
         case 'scalar':
-            type = getScalarJsType(prop.type.name)
+            type = getScalarJs(prop.type.name)
             if (type == 'BigDecimal') {
                 imports.useBigDecimal()
             }
@@ -332,13 +347,14 @@ function getPropJsType(imports: ImportRegistry, owner: 'entity' | 'object', prop
         case 'enum':
         case 'object':
         case 'union':
+            imports.useModel(prop.type.name)
             type = prop.type.name
             break
         case 'fk':
             type = 'string'
             break
         case 'list':
-            type = getPropJsType(imports, 'object', prop.type.item)
+            type = getPropJs(imports, 'object', prop.type.item)
             if (type.indexOf('|')) {
                 type = `(${type})[]`
             } else {
@@ -354,7 +370,7 @@ function getPropJsType(imports: ImportRegistry, owner: 'entity' | 'object', prop
     return type
 }
 
-function getScalarJsType(typeName: string): string {
+function getScalarJs(typeName: string): string {
     switch (typeName) {
         case 'ID':
         case 'String':
@@ -400,10 +416,10 @@ function addIndexAnnotation(entity: Entity, field: string, imports: ImportRegist
     let index = getFieldIndex(entity, field)
     if (index == null) return
     imports.useMikroorm('Index')
+    out.line(`@Index_()`)
     if (index.unique) {
-        out.line(`@Index_({unique: true})`)
-    } else {
-        out.line(`@Index_()`)
+        imports.useMikroorm('Unique')
+        out.line(`@Unique_()`)
     }
 }
 
@@ -426,7 +442,7 @@ function printComment(obj: {description?: string}, out: Output) {
 class ImportRegistry {
     private mikroorm = new Set<string>()
     private model = new Set<string>()
-    private types = false
+    private support = new Set<string>()
     private bigdecimal = false
     private assert = false
 
@@ -443,8 +459,8 @@ class ImportRegistry {
         })
     }
 
-    useMarshal() {
-        this.types = true
+    useSupport(...names: string[]) {
+        names.forEach((name) => this.support.add(name))
     }
 
     useBigDecimal() {
@@ -466,8 +482,8 @@ class ImportRegistry {
             const importList = Array.from(this.mikroorm).map((name) => name + ' as ' + name + '_')
             out.line(`import {${importList.join(', ')}} from "@mikro-orm/core"`)
         }
-        if (this.types) {
-            out.line(`import * as types from "./types"`)
+        if (this.support.size > 0) {
+            out.line(`import {${Array.from(this.support).join(', ')}} from "./support"`)
         }
         for (const name of this.model) {
             switch (model[name].kind) {

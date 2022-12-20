@@ -6,7 +6,7 @@ import {BigDecimal} from '@subsquid/big-decimal'
 describe('scalars', function () {
     describe('Read', function () {
         useDatabase([
-            `create table scalar (id text primary key, "boolean" bool, "bigint" numeric, "bigdecimal" numeric, "string" text, enum text, date_time timestamptz, "bytes" bytea, "json" jsonb, "deep" jsonb)`,
+            `create table scalar (id text primary key, "boolean" bool, "bigint" numeric, "bigdecimal" numeric, "string" text, enum text, datetime timestamptz, "bytes" bytea, "json" jsonb, "deep" jsonb, "array" numeric array)`,
             `insert into scalar (id, "boolean") values ('1', true)`,
             `insert into scalar (id, "boolean", deep) values ('2', false, '{"boolean": true}'::jsonb)`,
             `insert into scalar (id, "bigint", deep) values ('3', 1000000000000000000000000000000000000, '{"bigint": "1000000000000000000000000000000000000"}'::jsonb)`,
@@ -17,9 +17,9 @@ describe('scalars', function () {
             `insert into scalar (id, "string") values ('8', 'baz foo bar')`,
             `insert into scalar (id, "string") values ('9', 'hello')`,
             `insert into scalar (id, "string") values ('9-1', 'A fOo B')`,
-            `insert into scalar (id, "date_time", deep) values ('10', '2021-09-22T15:43:13.400Z', '{"dateTime": "2021-09-24T00:00:00.120Z"}'::jsonb)`,
-            `insert into scalar (id, "date_time", deep) values ('11', '2021-09-23T00:00:00.000Z', '{"dateTime": "2021-09-24T00:00:00Z"}'::jsonb)`,
-            `insert into scalar (id, "date_time", deep) values ('12', '2021-09-24 02:00:00.001 +01:00', '{"dateTime": "2021-09-24T00:00:00.1Z"}'::jsonb)`,
+            `insert into scalar (id, "datetime", deep) values ('10', '2021-09-22T15:43:13.400Z', '{"datetime": "2021-09-24T00:00:00.120Z"}'::jsonb)`,
+            `insert into scalar (id, "datetime", deep) values ('11', '2021-09-23T00:00:00.000Z', '{"datetime": "2021-09-24T00:00:00Z"}'::jsonb)`,
+            `insert into scalar (id, "datetime", deep) values ('12', '2021-09-24 02:00:00.001 +01:00', '{"datetime": "2021-09-24T00:00:00.1Z"}'::jsonb)`,
             `insert into scalar (id, "bytes", deep) values ('13', decode('aa', 'hex'), '{"bytes": "0xaa"}'::jsonb)`,
             `insert into scalar (id, "bytes", deep) values ('14', decode('bb', 'hex'), '{"bytes": "0xCCDD"}'::jsonb)`,
             `insert into scalar (id, "enum") values ('15', 'A')`,
@@ -30,6 +30,7 @@ describe('scalars', function () {
             `insert into scalar (id, "bigdecimal", deep) values ('20', 0.00000000000000000000000000000000002, '{"bigdecimal": "100.00000000000000000000000000000000002"}'::jsonb)`,
             `insert into scalar (id, "bigdecimal", deep) values ('21', 0.00000000000000000000000000000000001, '{"bigdecimal": "12.00000000000000000000000000000000001"}'::jsonb)`,
             `insert into scalar (id, "bigdecimal", deep) values ('22', 5, '{"bigdecimal": "5"}'::jsonb)`,
+            `insert into scalar (id, "array") values ('23', '{"1","2","3","4"}')`,
         ])
 
         describe('Boolean', function () {
@@ -136,6 +137,7 @@ describe('scalars', function () {
                     lte: await store.find(Scalar, {bigint: {$lte: 1000000000000000000000000000000000000n}}),
                     in: await store.find(Scalar, {bigint: {$in: [1000000000000000000000000000000000000n, 5n]}}),
                     nin: await store.find(Scalar, {bigint: {$nin: [1000000000000000000000000000000000000n, 5n]}}),
+                    // deep_eq: await store.find(Scalar, {deep: {bigint: 1000000000000000000000000000000000000n}})
                 }).toMatchObject({
                     eq: [{id: '4'}],
                     not_eq: [{id: '3'}, {id: '5'}],
@@ -145,6 +147,7 @@ describe('scalars', function () {
                     lte: [{id: '3'}, {id: '5'}],
                     in: [{id: '3'}, {id: '5'}],
                     nin: [{id: '4'}],
+                    // deep_eq: [{id: '3'}]
                 })
             })
 
@@ -227,32 +230,32 @@ describe('scalars', function () {
             //     })
         })
 
-        describe('DateTime', function () {
+        describe('datetime', function () {
             it('outputs correctly', async function () {
                 let store = await createStore()
                 await expect(store.find(Scalar, {id: {$in: ['10', '11', '12']}})).resolves.toMatchObject([
-                    {id: '10', dateTime: new Date('2021-09-22T15:43:13.400000Z')},
-                    {id: '11', dateTime: new Date('2021-09-23T00:00:00.000000Z')},
-                    {id: '12', dateTime: new Date('2021-09-24T01:00:00.001000Z')},
+                    {id: '10', datetime: new Date('2021-09-22T15:43:13.400000Z')},
+                    {id: '11', datetime: new Date('2021-09-23T00:00:00.000000Z')},
+                    {id: '12', datetime: new Date('2021-09-24T01:00:00.001000Z')},
                 ])
             })
 
             it('supports where conditions', async function () {
                 let store = await createStore()
                 expect({
-                    eq: await store.find(Scalar, {dateTime: new Date('2021-09-22T15:43:13.400000Z')}),
-                    ne: await store.find(Scalar, {dateTime: {$ne: new Date('2021-09-22T15:43:13.400000Z')}}),
-                    gt: await store.find(Scalar, {dateTime: {$gt: new Date('2021-09-23T00:00:00.000000Z')}}),
-                    gte: await store.find(Scalar, {dateTime: {$gte: new Date('2021-09-23T00:00:00.000000Z')}}),
-                    lt: await store.find(Scalar, {dateTime: {$lt: new Date('2021-09-23T00:00:00.000000Z')}}),
-                    lte: await store.find(Scalar, {dateTime: {$lte: new Date('2021-09-23T00:00:00.000000Z')}}),
+                    eq: await store.find(Scalar, {datetime: new Date('2021-09-22T15:43:13.400000Z')}),
+                    ne: await store.find(Scalar, {datetime: {$ne: new Date('2021-09-22T15:43:13.400000Z')}}),
+                    gt: await store.find(Scalar, {datetime: {$gt: new Date('2021-09-23T00:00:00.000000Z')}}),
+                    gte: await store.find(Scalar, {datetime: {$gte: new Date('2021-09-23T00:00:00.000000Z')}}),
+                    lt: await store.find(Scalar, {datetime: {$lt: new Date('2021-09-23T00:00:00.000000Z')}}),
+                    lte: await store.find(Scalar, {datetime: {$lte: new Date('2021-09-23T00:00:00.000000Z')}}),
                     in: await store.find(Scalar, {
-                        dateTime: {
+                        datetime: {
                             $in: [new Date('2021-09-22T15:43:13.400000Z'), new Date('2021-09-23T00:00:00.000000Z')],
                         },
                     }),
                     nin: await store.find(Scalar, {
-                        dateTime: {
+                        datetime: {
                             $nin: [new Date('2021-09-22T15:43:13.400000Z'), new Date('2021-09-23T00:00:00.000000Z')],
                         },
                     }),
@@ -272,7 +275,7 @@ describe('scalars', function () {
             //     return client.test(
             //         `
             //         query {
-            //             scalars(orderBy: deep_dateTime_ASC where: {id_in: ["10", "11", "12"]}) {
+            //             scalars(orderBy: deep_datetime_ASC where: {id_in: ["10", "11", "12"]}) {
             //                 id
             //             }
             //         }
@@ -320,7 +323,30 @@ describe('scalars', function () {
                 let store = await createStore()
                 expect({
                     eq: await store.find(Scalar, {json: {key1: 'value1'}}),
-                }).toMatchObject([{id: '18'}])
+                }).toMatchObject({
+                    eq: [{id: '18'}],
+                })
+            })
+        })
+
+        describe('Array', function () {
+            it('outputs correctly', async function () {
+                let store = await createStore()
+                await expect(store.find(Scalar, {id: {$in: ['23']}})).resolves.toMatchObject([
+                    {
+                        id: '23',
+                        array: [1n, 2n, 3n, 4n],
+                    },
+                ])
+            })
+
+            it('supports where conditions', async function () {
+                let store = await createStore()
+                expect({
+                    cn: await store.find(Scalar, {array: {$contains: [2].map(v => String(v))}}),
+                }).toMatchObject({
+                    cn: [{id: '23'}],
+                })
             })
         })
     })

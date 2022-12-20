@@ -1,13 +1,12 @@
-import type {IsolationLevel} from '@mikro-orm/core'
-import {SqlEntityManager} from '@mikro-orm/postgresql'
+import type {EntityManager, IsolationLevel} from '@mikro-orm/core'
 
 export interface Tx {
-    em: SqlEntityManager
+    em: EntityManager
     commit(): Promise<void>
     rollback(): Promise<void>
 }
 
-export function createTransaction(con: SqlEntityManager, isolationLevel: IsolationLevel): Promise<Tx> {
+export function createTransaction(con: EntityManager, isolationLevel: IsolationLevel): Promise<Tx> {
     return new Promise((resolve, reject) => {
         let done: Promise<void> = con.transactional(
             (em) => {

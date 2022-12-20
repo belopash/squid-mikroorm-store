@@ -1,9 +1,8 @@
 import {assertNotNull} from '@subsquid/util-internal'
 import assert from 'assert'
-import {MikroORM, IsolationLevel, t} from '@mikro-orm/core'
+import {MikroORM, IsolationLevel, EntityManager, QueryResult} from '@mikro-orm/core'
 import {Store} from './store'
 import {createTransaction, Tx} from './tx'
-import {PostgreSqlDriver, SqlEntityManager} from '@mikro-orm/postgresql'
 import {createOrmConfig} from '@subsquid/mikroorm-config'
 
 export interface DatabaseOptions {
@@ -11,10 +10,10 @@ export interface DatabaseOptions {
     isolationLevel?: IsolationLevel
 }
 
-class BaseDatabase<S> {
+export class MikroormDatabase {
     protected statusSchema: string
     protected isolationLevel: IsolationLevel
-    protected orm?: MikroORM<PostgreSqlDriver>
+    protected orm?: MikroORM
     protected lastCommitted = -1
 
     constructor(options?: DatabaseOptions) {
@@ -27,7 +26,7 @@ class BaseDatabase<S> {
             throw new Error('Already connected')
         }
         let cfg = createOrmConfig()
-        let orm = await MikroORM.init<PostgreSqlDriver>(cfg as any)
+        let orm = await MikroORM.init(cfg)
         try {
             let height = await orm.em.transactional(
                 async (em) => {
@@ -36,8 +35,7 @@ class BaseDatabase<S> {
                     CREATE TABLE IF NOT EXISTS ${this.statusSchema}.status (
                         id int primary key,
                         height int not null
-                    )
-                `)
+                    )`)
                     let status: {height: number}[] = await em.execute(
                         `SELECT height FROM ${this.statusSchema}.status WHERE id = 0`
                     )
@@ -52,6 +50,21 @@ class BaseDatabase<S> {
                     isolationLevel: IsolationLevel.SERIALIZABLE,
                 }
             )
+            this.updateHeight = async (em: typeof orm['em'], from: number, to: number) => {
+                await em
+                    .execute<QueryResult>(
+                        `UPDATE ${this.statusSchema}.status SET height = ${to} WHERE id = 0 AND height < ${from}`,
+                        [],
+                        'run'
+                    )
+                    .then((result) => {
+                        assert.strictEqual(
+                            result.affectedRows,
+                            1,
+                            'status table was updated by foreign process, make sure no other processor is running'
+                        )
+                    })
+            }
             this.orm = orm
             return height
         } catch (e: any) {
@@ -69,7 +82,7 @@ class BaseDatabase<S> {
         }
     }
 
-    async transact(from: number, to: number, cb: (store: S) => Promise<void>): Promise<void> {
+    async transact(from: number, to: number, cb: (store: Store) => Promise<void>): Promise<void> {
         let retries = 3
         while (true) {
             try {
@@ -84,38 +97,10 @@ class BaseDatabase<S> {
         }
     }
 
-    protected async runTransaction(from: number, to: number, cb: (store: S) => Promise<void>): Promise<void> {
+    protected async updateHeight(em: EntityManager, from: number, to: number): Promise<void> {
         throw new Error('Not implemented')
     }
 
-    protected async updateHeight(em: SqlEntityManager, from: number, to: number): Promise<void> {
-        await em.execute(`UPDATE ${this.statusSchema}.status SET height = ${to} WHERE id = 0 AND height < ${from}`)
-        // .then((result: [data: any[], rowsChanged: number]) => {
-        //     let rowsChanged = result[1]
-        //     assert.strictEqual(
-        //         rowsChanged,
-        //         1,
-        //         'status table was updated by foreign process, make sure no other processor is running'
-        //     )
-        // })
-    }
-}
-
-/**
- * Provides restrictive and lazy version of  EntityManager
- * to data handlers.
- *
- * Lazy here means that no database transaction is opened until an
- * actual database operation is requested by some data handler,
- * which allows more efficient data filtering within handlers.
- *
- * `Database` supports only primitive DML operations
- * without cascades, relations and other ORM goodies in return
- * for performance and exciting new features yet to be implemented :).
- *
- * Instances of this class should be considered to be completely opaque.
- */
-export class MikroormDatabase extends BaseDatabase<Store> {
     protected async runTransaction(from: number, to: number, cb: (store: Store) => Promise<void>): Promise<void> {
         let tx = await this.createTx(from, to)
         let open = true

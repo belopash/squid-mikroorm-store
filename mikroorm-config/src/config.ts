@@ -1,7 +1,8 @@
 import process from 'process'
 import path from 'path'
-import {Constructor, IMigrationGenerator, MigrationsOptions, Options, UnderscoreNamingStrategy} from '@mikro-orm/core'
+import {UnderscoreNamingStrategy} from '@mikro-orm/core'
 import {createConnectionOptions} from './connectionOptions'
+import {PostgreSqlDriver, Options} from '@mikro-orm/postgresql'
 
 export interface OrmOptions {
     projectDir?: string
@@ -14,16 +15,16 @@ export function createOrmConfig(options?: OrmOptions): Options {
     let model = resolveModel(path.join(dir, 'lib/model/models.js'))
     let migrationsDir = path.join(dir, MIGRATIONS_DIR)
     return {
-        type: 'postgresql',
+        driver: PostgreSqlDriver,
         namingStrategy: UnderscoreNamingStrategy,
         entities: [model],
         migrations: {path: migrationsDir},
         ...createConnectionOptions(),
         useBatchInserts: true,
         useBatchUpdates: true,
-        schemaGenerator:{
-            ignoreSchema: ['squid_status', 'squid_processor']
-        }
+        schemaGenerator: {
+            ignoreSchema: ['squid_status', 'squid_processor'],
+        },
     }
 }
 
