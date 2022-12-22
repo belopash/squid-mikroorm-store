@@ -86,15 +86,27 @@ export class Store {
         return this.em().count(entityClass, where)
     }
 
-    find<E extends Entity>(entityClass: EntityClass<E>, where: FilterQuery<E>, options?: FindManyOptions): Promise<E[]> {
+    find<E extends Entity>(
+        entityClass: EntityClass<E>,
+        where: FilterQuery<E>,
+        options?: FindManyOptions
+    ): Promise<E[]> {
         return this.em().find(entityClass, where, options)
     }
 
-    findOne<E extends Entity>(entityClass: EntityClass<E>, where: FilterQuery<E>, options?: FindOneOptions): Promise<E | undefined> {
+    findOne<E extends Entity>(
+        entityClass: EntityClass<E>,
+        where: FilterQuery<E>,
+        options?: FindOneOptions
+    ): Promise<E | undefined> {
         return this.em().findOne(entityClass, where, options).then(noNull)
     }
 
-    findOneOrFail<E extends Entity>(entityClass: EntityClass<E>, where: FilterQuery<E>, options?: FindOneOptions): Promise<E> {
+    findOneOrFail<E extends Entity>(
+        entityClass: EntityClass<E>,
+        where: FilterQuery<E>,
+        options?: FindOneOptions
+    ): Promise<E> {
         return this.em().findOneOrFail(entityClass, where, options)
     }
 
@@ -102,8 +114,7 @@ export class Store {
         let uow = this.em().getUnitOfWork()
         let item = uow.getById<E>(entityClass.name, id as any)
         if (item == null) {
-            let persistMap = new Map<string, E>([...uow.getPersistStack()].map((e) => [e.id, e as E]))
-            return persistMap.get(id)
+            return [...uow.getPersistStack()].find((e) => e.id === id && e instanceof entityClass) as any
         } else {
             if (uow.getRemoveStack().has(item)) {
                 return undefined

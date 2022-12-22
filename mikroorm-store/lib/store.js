@@ -71,8 +71,7 @@ class Store {
         let uow = this.em().getUnitOfWork();
         let item = uow.getById(entityClass.name, id);
         if (item == null) {
-            let persistMap = new Map([...uow.getPersistStack()].map((e) => [e.id, e]));
-            return persistMap.get(id);
+            return [...uow.getPersistStack()].find((e) => e.id === id && e instanceof entityClass);
         }
         else {
             if (uow.getRemoveStack().has(item)) {
