@@ -8,6 +8,9 @@ import {createOrmConfig} from '@subsquid/mikroorm-config'
 export interface DatabaseOptions {
     stateSchema?: string
     isolationLevel?: IsolationLevel
+    dbConfig?: {
+        batchSize?: number
+    }
 }
 
 export class MikroormDatabase {
@@ -15,10 +18,12 @@ export class MikroormDatabase {
     protected isolationLevel: IsolationLevel
     protected orm?: MikroORM
     protected lastCommitted = -1
+    protected dbConfig: {batchSize?: number}
 
     constructor(options?: DatabaseOptions) {
         this.statusSchema = options?.stateSchema ? `"${options.stateSchema}"` : 'squid_processor'
         this.isolationLevel = options?.isolationLevel || IsolationLevel.SERIALIZABLE
+        this.dbConfig = options?.dbConfig || {}
     }
 
     async connect(): Promise<number> {
@@ -26,7 +31,7 @@ export class MikroormDatabase {
             throw new Error('Already connected')
         }
         let cfg = createOrmConfig()
-        let orm = await MikroORM.init(cfg)
+        let orm = await MikroORM.init({...cfg, ...this.dbConfig})
         try {
             let height = await orm.em.transactional(
                 async (em) => {

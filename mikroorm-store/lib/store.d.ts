@@ -31,7 +31,7 @@ export declare class Store {
     persist<E extends Entity>(e: E | E[]): EntityManager<import("@mikro-orm/core").IDatabaseDriver<import("@mikro-orm/core").Connection>>;
     flush(): Promise<void>;
     clear(): void;
-    refresh<E extends Entity>(...entities: E[]): Promise<E[] | null>;
+    refresh<E extends Entity>(...entities: E[]): Promise<import("@mikro-orm/core").Loaded<E[], never> | null>;
     private getDeferredIds;
 }
 //# sourceMappingURL=store.d.ts.map

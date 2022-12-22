@@ -15,13 +15,14 @@ class MikroormDatabase {
         this.lastCommitted = -1;
         this.statusSchema = options?.stateSchema ? `"${options.stateSchema}"` : 'squid_processor';
         this.isolationLevel = options?.isolationLevel || core_1.IsolationLevel.SERIALIZABLE;
+        this.dbConfig = options?.dbConfig || {};
     }
     async connect() {
         if (this.orm != null) {
             throw new Error('Already connected');
         }
         let cfg = (0, mikroorm_config_1.createOrmConfig)();
-        let orm = await core_1.MikroORM.init(cfg);
+        let orm = await core_1.MikroORM.init({ ...cfg, ...this.dbConfig });
         try {
             let height = await orm.em.transactional(async (em) => {
                 await em.execute(`CREATE SCHEMA IF NOT EXISTS ${this.statusSchema}`);

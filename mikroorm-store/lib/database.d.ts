@@ -3,12 +3,18 @@ import { Store } from './store';
 export interface DatabaseOptions {
     stateSchema?: string;
     isolationLevel?: IsolationLevel;
+    dbConfig?: {
+        batchSize?: number;
+    };
 }
 export declare class MikroormDatabase {
     protected statusSchema: string;
     protected isolationLevel: IsolationLevel;
     protected orm?: MikroORM;
     protected lastCommitted: number;
+    protected dbConfig: {
+        batchSize?: number;
+    };
     constructor(options?: DatabaseOptions);
     connect(): Promise<number>;
     close(): Promise<void>;
