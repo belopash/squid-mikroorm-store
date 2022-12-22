@@ -22,7 +22,7 @@
     "@subsquid/util-internal": "^1.0.0"
   },
   "peerDependencies": {
-    "@mikro-orm/core": "^5.6.0"
+    "@mikro-orm/core": "^5.6.1"
   },
   "devDependencies": {
     "@types/mocha": "^9.1.1",

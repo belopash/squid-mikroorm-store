@@ -17,10 +17,10 @@
   },
   "dependencies": {
     "@subsquid/util-naming": "^0.0.1",
-    "@mikro-orm/postgresql": "^5.6.0"
+    "@mikro-orm/postgresql": "^5.6.1"
   },
   "peerDependencies": {
-    "@mikro-orm/core": "^5.6.0"
+    "@mikro-orm/core": "^5.6.1"
   },
   "devDependencies": {
     "@types/node": "^16.11.41",
