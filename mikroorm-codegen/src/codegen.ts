@@ -56,7 +56,7 @@ export function generateOrmModels(model: Model, dir: OutDir): void {
                 switch (prop.type.kind) {
                     case 'scalar':
                         if (key === 'id') {
-                            out.line('@PrimaryKey_({type: types.String})')
+                            out.line('@PrimaryKey_()')
                         } else {
                             addIndexAnnotation(entity, key, imports, out)
                             out.line(`@Property_({type: types.${prop.type.name}, nullable: ${prop.nullable}})`)
